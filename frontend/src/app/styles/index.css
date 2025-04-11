@@ -1,0 +1,9 @@
+@import "@fontsource-variable/fira-code/wght";
+@import "@fontsource-variable/inter/wght";
+@import "@fontsource-variable/lora/wght";
+
+@import "tailwindcss";
+
+@import "./base";
+@import "./theme";
+@import "./utilities";

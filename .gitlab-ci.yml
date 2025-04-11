@@ -1,0 +1,88 @@
+include:
+  - project: pipelines/pipelines
+    ref: master
+    file:
+      - "/jobs/build.yaml"
+      - "/jobs/docker.yaml"
+      - "/jobs/rules.yaml"
+
+.global-variables:
+  variables:
+    SSH_USER: "$ENV_SSH_USER"
+    SSH_HOST: "$ENV_SSH_HOST"
+    SSH_PRIVATE_KEY_BASE64: "$ENV_PRIVATE_KEY_BASE64"
+
+stages:
+  - unit-test
+  - e2e-test
+  - deploy
+
+# build:
+#   stage: build
+#   extends:     
+#     - .build
+#     - .rules-merge-or-master
+
+unit-test:
+  stage: unit-test
+  image: docker:latest
+  extends:
+    - .global-variables
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: tcp://docker:2375
+  services:
+    - docker:dind
+  script:
+    - echo "Waiting for Docker daemon to be available..."
+    - until docker info >/dev/null 2>&1; do sleep 2; done
+    - echo "Running unit tests..."
+    - docker compose --profile unit-test up --build --abort-on-container-exit
+    - if [ $? -eq 0 ]; then echo "Unit tests passed successfully."; else echo "Unit tests failed." && exit 1; fi
+    - docker compose --profile unit-test down -v
+
+e2e-test:
+  stage: e2e-test
+  image: docker:latest
+  extends:
+    - .global-variables
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: tcp://docker:2375
+  services:
+    - docker:dind
+  script:
+    - echo "Waiting for Docker daemon to be available..."
+    - until docker info >/dev/null 2>&1; do sleep 2; done
+    - echo "Running e2e tests..."
+    - docker compose --profile test up --build --abort-on-container-exit
+    - if [ $? -eq 0 ]; then echo " e2e tests passed successfully."; else echo "e2e tests failed." && exit 1; fi
+    - docker compose --profile test down -v
+
+deploy:
+  stage: deploy
+  extends:
+    - .docker_run
+    - .global-variables
+    - .rules-merge-or-master
+  script:
+    - echo "$SSH_PRIVATE_KEY_BASE64" | base64 -d > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - apk update --force-refresh
+    - apk add rsync
+    - echo "Запуск Docker Compose с prod профилем..."
+    - rsync -r -e "ssh -i ~/.ssh/id_rsa" ./ $SSH_USER@$SSH_HOST:/home/ubuntu/bookit
+    - ssh $SSH_ADDRESS "docker-compose -f /home/ubuntu/bookit/compose.yml --profile prod up --build -d"
+    - ssh $SSH_ADDRESS "docker-compose -f /home/ubuntu/bookit/compose.yml ps"
+
+  # only:
+  #   refs:
+  #     - main
+
+# default:
+#   before_script:
+#     - docker info
+#     - docker-compose version
+
+services:
+  - docker:dind

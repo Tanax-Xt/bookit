@@ -1,0 +1,275 @@
+services:
+  frontend:
+    container_name: bookit-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - bookit-network
+    profiles:
+      - prod
+      - test
+    environment:
+      - VITE_API_URL http://localhost:8080/api
+
+  frontend-dev:
+    container_name: bookit-frontend-dev
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    networks:
+      - bookit-network
+    profiles:
+      - dev
+    ports:
+      - "1984:1984"
+    volumes:
+      - ./frontend/src:/app/src
+
+  nginx:
+    container_name: bookit-nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    depends_on:
+      - frontend
+      - backend
+      - grafana
+    ports:
+      - "443:443"
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - bookit-network
+    profiles:
+      - prod
+
+  nginx-dev:
+    container_name: bookit-nginx-dev
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - frontend-dev
+      - backend
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - bookit-network
+    profiles:
+      - dev
+
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_PATH}
+      - REDIS_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - dev
+      - prod
+    networks:
+      - bookit-network
+
+  e2e-test:
+    build:
+      context: backend
+      dockerfile: Dockerfile.test
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_TEST_USERNAME}:${POSTGRES_TEST_PASSWORD}@postgres-test:${POSTGRES_TEST_PORT}/${POSTGRES_TEST_PATH}
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+      test: ["CMD", "true"]
+    restart: "no"
+    profiles:
+      - test
+    networks:
+      - bookit-network
+
+  unit-test:
+    build:
+      context: backend
+      dockerfile: Dockerfile.unittest
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_TEST_USERNAME}:${POSTGRES_TEST_PASSWORD}@postgres-test:${POSTGRES_TEST_PORT}/${POSTGRES_TEST_PATH}
+    healthcheck:
+      disable: true
+      test: ["CMD", "true"]
+    restart: "no"
+    profiles:
+      - unit-test
+    networks:
+      - bookit-network
+
+  redis:
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    profiles:
+      - prod
+    networks:
+      - bookit-network
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - PGUSER=${POSTGRES_USERNAME}
+      - POSTGRES_DB=${POSTGRES_PATH}
+      - POSTGRES_USER=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h postgres -p ${POSTGRES_PORT} -U ${POSTGRES_USERNAME}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    profiles:
+      - dev
+      - prod
+    networks:
+      - bookit-network
+
+  postgres-test:
+    image: postgres:latest
+    environment:
+      - PGUSER=${POSTGRES_TEST_USERNAME}
+      - POSTGRES_DB=${POSTGRES_TEST_PATH}
+      - POSTGRES_USER=${POSTGRES_TEST_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_TEST_PASSWORD}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h postgres-test -p ${POSTGRES_TEST_PORT} -U ${POSTGRES_TEST_USERNAME}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - test
+      - unit-test
+    networks:
+      - bookit-network
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - "./backend/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "./backend/prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    #    ports:
+    #      - ${PROMETHEUS_PORT:-9090}:${PROMETHEUS_PORT:-9090}
+    restart: unless-stopped
+    profiles:
+      - prod
+    networks:
+      - bookit-network
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - "node_exporter_data:/host:ro,rslave"
+    #    ports:
+    #      - ${NODE_EXPORTER_PORT:-9100}:${NODE_EXPORTER_PORT:-9100}
+    restart: unless-stopped
+    profiles:
+      - prod
+    networks:
+      - bookit-network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - ${GRAFANA_PORT:-3000}:${GRAFANA_PORT:-3000}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./backend/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./backend/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_NAME=Main Org.
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+
+    restart: unless-stopped
+    profiles:
+      - prod
+    networks:
+      - bookit-network
+
+  alertmanager:
+    build:
+      context: ./backend/alertmanager
+      dockerfile: DockerfileAlert
+    ports:
+      - ${ALERTMANAGER_PORT:-9093}:${ALERTMANAGER_PORT:-9093}
+    environment:
+      - TELEGRAM_ALERT_BOT_TOKEN=${TELEGRAM_ALERT_BOT_TOKEN}
+      - TELEGRAM_ID=${TELEGRAM_ALERT_ID}
+    depends_on:
+      prometheus:
+        condition: service_started
+      backend:
+        condition: service_started
+    restart: unless-stopped
+    profiles:
+      - prod
+    networks:
+      - bookit-network
+
+  telegram_bot:
+    build:
+      context: telegram_bot
+      dockerfile: Dockerfile
+    depends_on:
+      backend:
+        condition: service_started
+    profiles:
+      - prod
+    restart: unless-stopped
+    networks:
+      - bookit-network
+
+volumes:
+  redis_data:
+  postgres_data:
+  node_exporter_data:
+  grafana_data:
+
+networks:
+  bookit-network:
+    driver: bridge

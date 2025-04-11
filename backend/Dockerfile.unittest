@@ -1,0 +1,12 @@
+FROM python:3.12
+
+WORKDIR /backend
+
+COPY requirements requirements
+
+RUN pip install -r requirements/dev.txt
+
+COPY .coveragerc .
+COPY . .
+
+CMD sh -c "pytest --cov=src/api --cov-config=.coveragerc tests/unit/"

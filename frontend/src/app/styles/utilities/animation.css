@@ -1,0 +1,64 @@
+@utility animate-in {
+  animation: enter var(--tw-duration, var(--default-transition-duration))
+    var(--tw-ease, var(--default-transition-timing-function));
+}
+@utility animate-out {
+  animation: exit var(--tw-duration, var(--default-transition-duration))
+    var(--tw-ease, var(--default-transition-timing-function));
+}
+
+@utility fade-in-* {
+  --tw-enter-opacity: --value(percentage, ratio);
+}
+@utility fade-out-* {
+  --tw-exit-opacity: --value(percentage, ratio);
+}
+
+@utility zoom-in-* {
+  --tw-enter-scale: --value(percentage, ratio);
+}
+@utility zoom-out-* {
+  --tw-exit-scale: --value(percentage, ratio);
+}
+
+@utility slide-in-from-t-* {
+  --tw-enter-translate-y: calc(--value(percentage) * -1);
+  --tw-enter-translate-y: calc(--value(ratio) * -100%);
+  --tw-enter-translate-y: calc(--value(integer) * var(--spacing) * -1);
+}
+@utility slide-in-from-b-* {
+  --tw-enter-translate-y: --value(percentage);
+  --tw-enter-translate-y: calc(--value(ratio) * 100%);
+  --tw-enter-translate-y: calc(--value(integer) * var(--spacing));
+}
+@utility slide-in-from-r-* {
+  --tw-enter-translate-x: --value(percentage);
+  --tw-enter-translate-x: calc(--value(ratio) * 100%);
+  --tw-enter-translate-x: calc(--value(integer) * var(--spacing));
+}
+@utility slide-in-from-l-* {
+  --tw-enter-translate-x: calc(--value(percentage) * -1);
+  --tw-enter-translate-x: calc(--value(ratio) * -100%);
+  --tw-enter-translate-x: calc(--value(integer) * var(--spacing) * -1);
+}
+
+@utility slide-out-to-t-* {
+  --tw-exit-translate-y: calc(--value(percentage) * -1);
+  --tw-exit-translate-y: calc(--value(ratio) * -100%);
+  --tw-exit-translate-y: calc(--value(integer) * var(--spacing) * -1);
+}
+@utility slide-out-to-b-* {
+  --tw-exit-translate-y: --value(percentage);
+  --tw-exit-translate-y: calc(--value(ratio) * 100%);
+  --tw-exit-translate-y: calc(--value(integer) * var(--spacing));
+}
+@utility slide-out-to-r-* {
+  --tw-exit-translate-x: --value(percentage);
+  --tw-exit-translate-x: calc(--value(ratio) * 100%);
+  --tw-exit-translate-x: calc(--value(integer) * var(--spacing));
+}
+@utility slide-out-to-l-* {
+  --tw-exit-translate-x: calc(--value(percentage) * -1);
+  --tw-exit-translate-x: calc(--value(ratio) * -100%);
+  --tw-exit-translate-x: calc(--value(integer) * var(--spacing) * -1);
+}

@@ -1,0 +1,15 @@
+@layer base {
+  body {
+    color: var(--color-fg-body);
+    background: var(--color-bg-body);
+    overflow-x: clip;
+    overflow-y: scroll !important;
+    touch-action: manipulation;
+    padding: 0px !important;
+  }
+
+  *::selection {
+    color: var(--color-fg-inverse);
+    background: var(--color-bg-accent);
+  }
+}

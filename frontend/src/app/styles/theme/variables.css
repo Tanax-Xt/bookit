@@ -1,0 +1,60 @@
+@theme {
+  --font-sans:
+    "Inter Variable", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+  --font-serif: "Lora Variable", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono:
+    "Fira Code Variable", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+
+  --color-light: var(--color-zinc-100);
+  --color-dark: var(--color-zinc-900);
+
+  --color-bg-body: var(--color-bg-body);
+  --color-bg-inverse: var(--color-bg-inverse);
+  --color-bg-primary: var(--color-bg-primary);
+  --color-bg-secondary: var(--color-bg-secondary);
+  --color-bg-tertiary: var(--color-bg-tertiary);
+  --color-bg-accent: var(--color-bg-accent);
+  --color-bg-positive: var(--color-bg-positive);
+  --color-bg-destructive: var(--color-bg-destructive);
+
+  --color-fg-body: var(--color-fg-body);
+  --color-fg-inverse: var(--color-fg-inverse);
+  --color-fg-primary: var(--color-fg-primary);
+  --color-fg-secondary: var(--color-fg-secondary);
+  --color-fg-tertiary: var(--color-fg-tertiary);
+  --color-fg-accent: var(--color-fg-accent);
+  --color-fg-positive: var(--color-fg-positive);
+  --color-fg-destructive: var(--color-fg-destructive);
+
+  --z-index-dialog: 40;
+  --z-index-select: 50;
+  --z-index-dropdown: 50;
+
+  --ease-wave: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --animate-shimmer: shimmer 1500ms infinite ease;
+
+  @keyframes shimmer {
+    to {
+      transform: translateX(200%);
+    }
+  }
+
+  @keyframes enter {
+    from {
+      opacity: var(--tw-enter-opacity, 1);
+      transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0)
+        scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1));
+    }
+  }
+
+  @keyframes exit {
+    to {
+      opacity: var(--tw-exit-opacity, 1);
+      transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0)
+        scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1));
+    }
+  }
+}

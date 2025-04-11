@@ -1,0 +1,72 @@
+import {
+  Icon,
+  DropdownMenuIconCommonProps as IconCommonProps,
+  DropdownMenuIconOptions as IconOptions,
+  DropdownMenuIconProps as IconProps,
+  DropdownMenuIconRenderProps as IconRenderProps,
+  ItemDescription,
+  DropdownMenuItemDescriptionCommonProps as ItemDescriptionCommonProps,
+  DropdownMenuItemDescriptionOptions as ItemDescriptionOptions,
+  DropdownMenuItemDescriptionProps as ItemDescriptionProps,
+  DropdownMenuItemDescriptionRenderProps as ItemDescriptionRenderProps,
+  ItemIndicator,
+  DropdownMenuItemIndicatorCommonProps as ItemIndicatorCommonProps,
+  DropdownMenuItemIndicatorOptions as ItemIndicatorOptions,
+  DropdownMenuItemIndicatorProps as ItemIndicatorProps,
+  DropdownMenuItemIndicatorRenderProps as ItemIndicatorRenderProps,
+  ItemLabel,
+  DropdownMenuItemLabelCommonProps as ItemLabelCommonProps,
+  DropdownMenuItemLabelOptions as ItemLabelOptions,
+  DropdownMenuItemLabelProps as ItemLabelProps,
+  DropdownMenuItemLabelRenderProps as ItemLabelRenderProps,
+  Root,
+  DropdownMenuRootOptions as RootOptions,
+  DropdownMenuRootProps as RootProps,
+  Trigger,
+  DropdownMenuTriggerCommonProps as TriggerCommonProps,
+  DropdownMenuTriggerOptions as TriggerOptions,
+  DropdownMenuTriggerProps as TriggerProps,
+  DropdownMenuTriggerRenderProps as TriggerRenderProps,
+} from "@kobalte/core/dropdown-menu";
+
+import Content, { DropdownContentProps as ContentProps } from "./Content";
+import Item, { DropdownItemProps as ItemProps } from "./Item";
+
+export type {
+  ContentProps,
+  IconCommonProps,
+  IconOptions,
+  IconProps,
+  IconRenderProps,
+  ItemDescriptionCommonProps,
+  ItemDescriptionOptions,
+  ItemDescriptionProps,
+  ItemDescriptionRenderProps,
+  ItemIndicatorCommonProps,
+  ItemIndicatorOptions,
+  ItemIndicatorProps,
+  ItemIndicatorRenderProps,
+  ItemLabelCommonProps,
+  ItemLabelOptions,
+  ItemLabelProps,
+  ItemLabelRenderProps,
+  ItemProps,
+  RootOptions,
+  RootProps,
+  TriggerCommonProps,
+  TriggerOptions,
+  TriggerProps,
+  TriggerRenderProps,
+};
+
+export const Dropdown = Object.assign(Root, {
+  Trigger,
+  Content,
+  Item,
+  ItemLabel,
+  ItemDescription,
+  ItemIndicator,
+  Icon,
+});
+
+export default Dropdown;

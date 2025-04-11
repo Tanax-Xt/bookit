@@ -1,0 +1,6 @@
+[run]
+source = src/api
+omit =
+    */src/api/telegram_bot/*
+    */src/api/scheduler/*
+    */src/api/stat/*

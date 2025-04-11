@@ -1,0 +1,22 @@
+[tool.ruff]
+line-length = 120
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+  "E", # pycodestyle
+  "F", # Pyflakes
+  "I", # isort
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.pyright]
+include = ["src", "tests"]
+exclude = ["**/__pycache__"]
+typeCheckingMode = "standard"
+reportUnknownMemberType = false
+reportUntypedFunctionDecorator = false

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "endOfLine": "lf",
+  "jsxSingleQuote": false,
+  "printWidth": 120,
+  "semi": true,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "trailingComma": "all",
+  "useTabs": false,
+  "tailwindStylesheet": "./src/app/styles/index.css",
+  "tailwindAttributes": [
+    "enterActiveClass",
+    "enterClass",
+    "enterToClass",
+    "exitActiveClass",
+    "exitClass",
+    "exitToClass",
+    "class"
+  ],
+  "tailwindFunctions": ["clsx", "tv"],
+  "plugins": ["prettier-plugin-tailwindcss"]
+}
